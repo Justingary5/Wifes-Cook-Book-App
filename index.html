@@ -326,8 +326,8 @@ function openPlan(name) {
   if (firstFree) sel.value = firstFree.value;
   const sides = data.meals.filter(isSide);
   const pairs = goesWith(m);
-  document.getElementById("sidesBox").innerHTML = sides.length ? `<label>Sides</label><div class="sides">${sides.map(s =>
-    `<label><input type="checkbox" name="side" value="${esc(s.meal)}" ${pairs.some(p => same(p, s.meal)) ? "checked" : ""}> ${esc(s.meal)} <span class="muted">≈ ${money(mealCost(s))}</span></label>`
+  document.getElementById("sidesBox").innerHTML = sides.length ? `<label>Sides (pick 1 or 2)</label><div class="sides">${sides.map(s =>
+    `<label><input type="checkbox" name="side" value="${esc(s.meal)}"> ${esc(s.meal)} <span class="muted">≈ ${money(mealCost(s))}</span>${pairs.some(p => same(p, s.meal)) ? ` <span class="chip">goes well</span>` : ""}</label>`
   ).join("")}</div>` : "";
   document.getElementById("planDialog").showModal();
 }
