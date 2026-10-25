@@ -3,131 +3,320 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Family Cookbook</title>
-<meta name="theme-color" content="#b5532f">
+<title>Muno's Cookbook</title>
+<meta name="theme-color" content="#7a2e1d">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Cookbook">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Pacifico&family=Lora:ital,wght@0,400;0,600;1,400&family=Playfair+Display:ital,wght@0,600;0,800;1,600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #faf6f0; --card: #ffffff; --ink: #2b2420; --muted: #7a6e66;
-    --accent: #b5532f; --accent-soft: #f4e2d8; --line: #e8dfd5; --ok: #3d7a4a;
+    --desk: #e9dcc7; --desk-2: #dccab0;
+    --paper: #fdf8ee; --paper-2: #f6eedd; --edge: #e4d6bd;
+    --ink: #3a2c25; --muted: #85715f; --faint: #c9b79c;
+    --tomato: #b5452b; --tomato-dark: #7a2e1d; --sage: #5f7d5a; --butter: #f3d98b;
+    --rule: #d9e4ef; --margin: #e8a9a0;
+    --serif: "Lora", Georgia, serif;
+    --display: "Playfair Display", Georgia, serif;
+    --hand: "Caveat", "Segoe Print", cursive;
+    --script: "Pacifico", "Brush Script MT", cursive;
+    --shadow: 0 1px 2px rgba(60,40,20,.12), 0 12px 28px rgba(60,40,20,.18);
   }
   @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #1c1916; --card: #26221e; --ink: #f1ebe4; --muted: #a89c92;
-      --accent: #e0835d; --accent-soft: #3a2a22; --line: #3a342e; --ok: #7cc28a;
-    }
+    :root { --desk: #2a211c; --desk-2: #211a16; }
   }
   * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
   body {
-    margin: 0; background: var(--bg); color: var(--ink);
-    font: 16px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-    padding-bottom: calc(72px + env(safe-area-inset-bottom));
+    margin: 0; color: var(--ink); font: 17px/1.5 var(--serif);
+    background: var(--desk);
+    background-image:
+      radial-gradient(circle at 20% 10%, rgba(255,255,255,.18), transparent 40%),
+      repeating-linear-gradient(90deg, rgba(0,0,0,.025) 0 2px, transparent 2px 6px);
+    min-height: 100vh;
+    padding: 12px 12px calc(84px + env(safe-area-inset-bottom));
   }
-  header { padding: 20px 16px 8px; max-width: 900px; margin: 0 auto; }
-  header h1 { margin: 0; font-size: 1.6rem; }
-  header p { margin: 4px 0 0; color: var(--muted); font-size: .9rem; }
-  main { max-width: 900px; margin: 0 auto; padding: 8px 16px; }
-  section[hidden] { display: none; }
-  h2 { font-size: 1.15rem; margin: 16px 0 10px; }
-  .banner { background: var(--accent-soft); border-radius: 10px; padding: 10px 12px; font-size: .9rem; margin: 8px 0; }
-  .grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
-  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px; }
-  .card h3 { margin: 0 0 4px; font-size: 1.1rem; }
-  .meta { color: var(--muted); font-size: .85rem; display: flex; gap: 10px; flex-wrap: wrap; }
-  .card details { margin-top: 8px; font-size: .9rem; }
-  .card ul { margin: 6px 0 0; padding-left: 18px; }
-  .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 10px; }
-  button, select, input {
-    font: inherit; color: inherit; border-radius: 10px; border: 1px solid var(--line);
-    background: var(--card); padding: 8px 12px; min-height: 40px;
+  section[hidden] { display: none !important; }
+  button, select, input { font: inherit; color: inherit; }
+  button { cursor: pointer; }
+
+  /* ---------- the book ---------- */
+  .book-wrap { max-width: 640px; margin: 0 auto; }
+  .book {
+    position: relative; perspective: 2200px;
+    height: calc(100vh - 150px - env(safe-area-inset-bottom)); min-height: 480px; max-height: 900px;
   }
-  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
-  button.link { border: none; background: none; color: var(--accent); padding: 4px; min-height: 0; }
-  .week { display: grid; gap: 8px; }
-  .day { display: grid; grid-template-columns: 92px 1fr auto; gap: 10px; align-items: center;
-         background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; }
-  .day .date { font-weight: 600; font-size: .95rem; }
-  .day .date small { display: block; color: var(--muted); font-weight: 400; }
-  .day .what.empty { color: var(--muted); font-style: italic; }
-  .day .what .left { color: var(--muted); font-size: .85rem; }
-  .day.today { border-color: var(--accent); }
-  .weeknav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-  table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 12px; overflow: hidden; border: 1px solid var(--line); }
-  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); font-size: .95rem; }
-  th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
-  td.num, th.num { text-align: right; white-space: nowrap; }
-  tr.got td { text-decoration: line-through; color: var(--muted); }
-  tfoot td { font-weight: 700; border-bottom: none; }
-  td input[type=checkbox] { width: 20px; height: 20px; min-height: 0; }
+  .page {
+    position: absolute; inset: 0; overflow-y: auto; -webkit-overflow-scrolling: touch;
+    background: var(--paper);
+    background-image:
+      linear-gradient(90deg, rgba(120,90,50,.16), rgba(120,90,50,0) 7%),
+      radial-gradient(ellipse at 70% 30%, rgba(255,255,255,.6), transparent 60%),
+      linear-gradient(var(--paper), var(--paper-2));
+    border-radius: 4px 14px 14px 4px;
+    box-shadow: var(--shadow), 3px 3px 0 var(--edge), 6px 6px 0 var(--paper-2), 7px 7px 0 var(--edge);
+    padding: 34px 28px 56px 38px;
+    transform-origin: left center; backface-visibility: hidden; transform-style: preserve-3d;
+  }
+  .page.top { z-index: 2; }
+  .page.under { z-index: 1; }
+  .page.flip-next { animation: flipNext .7s cubic-bezier(.45,.05,.3,1) forwards; }
+  .page.flip-prev { animation: flipPrev .7s cubic-bezier(.45,.05,.3,1) forwards; }
+  @keyframes flipNext {
+    0% { transform: rotateY(0); filter: brightness(1); }
+    100% { transform: rotateY(-178deg); filter: brightness(.7); }
+  }
+  @keyframes flipPrev {
+    0% { transform: rotateY(-178deg); filter: brightness(.7); }
+    100% { transform: rotateY(0); filter: brightness(1); }
+  }
+  @media (prefers-reduced-motion: reduce) { .page.flip-next, .page.flip-prev { animation-duration: .01s; } }
+  .folio { margin-top: 30px; text-align: center; pointer-events: none; font: italic 14px var(--display); color: var(--muted); }
+  .corner {
+    position: absolute; right: 0; bottom: 0; z-index: 3; width: 46px; height: 46px; border: none; padding: 0;
+    background: linear-gradient(135deg, transparent 50%, var(--edge) 50%, var(--paper-2) 75%);
+    border-radius: 0 0 14px 0; box-shadow: -2px -2px 4px rgba(0,0,0,.06);
+  }
+  .corner:hover { width: 56px; height: 56px; }
+  .corner[hidden] { display: none; }
+  .book-nav { display: flex; justify-content: space-between; align-items: center; margin: 14px 4px 0; }
+  .book-nav button {
+    background: var(--paper); border: 1px solid var(--edge); border-radius: 999px; padding: 8px 16px;
+    font-family: var(--display); font-style: italic; color: var(--tomato-dark); box-shadow: 0 1px 2px rgba(0,0,0,.1);
+  }
+  .book-nav button:disabled { opacity: .35; cursor: default; }
+  .book-nav .hint { font: 18px var(--hand); color: var(--muted); }
+  @media (prefers-color-scheme: dark) { .book-nav .hint { color: #b8a58e; } }
+
+  /* cover */
+  .page.cover {
+    background: var(--tomato-dark);
+    background-image:
+      linear-gradient(90deg, rgba(0,0,0,.35), rgba(0,0,0,0) 6%, rgba(255,255,255,.06) 7%, rgba(0,0,0,0) 9%),
+      repeating-linear-gradient(45deg, rgba(255,255,255,.035) 0 3px, transparent 3px 9px),
+      radial-gradient(ellipse at 40% 30%, #9c3b25, #6a2617);
+    color: #f7e8cf; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+    box-shadow: var(--shadow), 4px 4px 0 #5a1f12;
+  }
+  .cover .frame {
+    border: 2px solid rgba(243,217,139,.7); outline: 1px solid rgba(243,217,139,.4); outline-offset: 6px;
+    padding: 40px 26px; border-radius: 6px; width: 100%; max-width: 420px;
+  }
+  .cover .eyebrow { font: italic 18px var(--display); color: var(--butter); letter-spacing: .04em; }
+  .cover h1 { font: 400 clamp(2.6rem, 12vw, 4rem)/1.25 var(--script); margin: 12px 0 10px; color: #fff4dc; text-shadow: 0 3px 0 rgba(0,0,0,.25); transform: rotate(-4deg); }
+  .cover .bowl { font-size: 64px; filter: drop-shadow(0 4px 6px rgba(0,0,0,.3)); margin: 6px 0; }
+  .cover .sub { font: 26px var(--hand); color: var(--butter); }
+  .cover .open {
+    margin-top: 26px; background: var(--butter); color: var(--tomato-dark); border: none; border-radius: 999px;
+    padding: 12px 26px; font: 600 1rem var(--display); box-shadow: 0 3px 0 #c9a54d;
+  }
+  .cover .src { margin-top: 18px; font-size: .8rem; color: rgba(247,232,207,.7); }
+
+  /* contents */
+  .page h2.title { font: 800 2rem/1.1 var(--display); margin: 0 0 4px; color: var(--tomato-dark); }
+  .flourish { font: 22px var(--hand); color: var(--muted); margin-bottom: 18px; }
+  .toc h3 { font: italic 600 1.15rem var(--display); color: var(--sage); margin: 22px 0 6px; border-bottom: 1px solid var(--faint); padding-bottom: 4px; }
+  .toc a {
+    display: flex; align-items: baseline; gap: 6px; padding: 8px 0; color: var(--ink); text-decoration: none; cursor: pointer;
+  }
+  .toc a .dots { flex: 1; border-bottom: 2px dotted var(--faint); transform: translateY(-4px); }
+  .toc a .pg { font-family: var(--display); font-style: italic; color: var(--muted); }
+  .toc a:hover .nm { color: var(--tomato); }
+  .toc .empty { font: 20px var(--hand); color: var(--muted); }
+
+  /* recipe page */
+  .kind { font: 600 .75rem var(--serif); letter-spacing: .18em; text-transform: uppercase; color: var(--sage); }
+  .recipe h2 { font: 800 clamp(1.9rem, 7vw, 2.5rem)/1.05 var(--display); margin: 4px 0 10px; color: var(--tomato-dark); }
+  .badges { display: grid; grid-template-columns: repeat(auto-fit, minmax(66px, 1fr)); gap: 6px; margin: 10px 0 16px; }
+  .badge {
+    background: #fff; border: 1px solid var(--edge); border-radius: 10px; padding: 6px 4px; text-align: center;
+    box-shadow: 0 1px 0 var(--edge);
+  }
+  .badge b { display: block; font: 700 1.15rem var(--display); color: var(--ink); }
+  .badge span { font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+  .note {
+    position: relative; background: #fff7c9; padding: 12px 14px 10px; margin: 6px 4px 18px; transform: rotate(-1.2deg);
+    font: 22px/1.2 var(--hand); color: #5b4630; box-shadow: 0 2px 6px rgba(0,0,0,.12);
+  }
+  .note::before {
+    content: ""; position: absolute; top: -9px; left: 50%; width: 70px; height: 18px; transform: translateX(-50%) rotate(2deg);
+    background: rgba(220,200,160,.65);
+  }
+  .recipe h3 { font: italic 600 1.2rem var(--display); color: var(--sage); margin: 18px 0 6px; }
+  .ing { list-style: none; padding: 0; margin: 0; }
+  .ing li { display: flex; align-items: baseline; gap: 6px; padding: 6px 0; border-bottom: 1px dashed var(--edge); }
+  .ing .nm { font-weight: 600; }
+  .ing .amt { color: var(--muted); font-style: italic; font-size: .92rem; }
+  .ing .dots { flex: 1; }
+  .ing .cost { font-family: var(--display); color: var(--tomato); white-space: nowrap; }
+  .ing .missing { font: 18px var(--hand); color: var(--muted); }
+  .pairs { display: flex; flex-wrap: wrap; gap: 8px; }
+  .pair {
+    border: 1px solid var(--sage); color: var(--sage); background: transparent; border-radius: 999px; padding: 4px 12px; font-size: .9rem;
+  }
+  .pair:hover { background: var(--sage); color: #fff; }
+  .plan-btn {
+    display: block; width: 100%; margin-top: 22px; padding: 14px; border: none; border-radius: 12px;
+    background: var(--tomato); color: #fff; font: 700 1.05rem var(--display); box-shadow: 0 3px 0 var(--tomato-dark);
+  }
+  .plan-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--tomato-dark); }
+  .stamp {
+    display: inline-block; transform: rotate(-6deg); border: 2px solid var(--sage); color: var(--sage); border-radius: 6px;
+    padding: 2px 8px; font: 700 .8rem var(--serif); letter-spacing: .1em; text-transform: uppercase; opacity: .8; margin-left: 8px;
+  }
+
+  /* ---------- notebook pages: week + list ---------- */
+  .sheet {
+    max-width: 640px; margin: 0 auto; position: relative; border-radius: 6px; box-shadow: var(--shadow);
+    background-color: #fffdf7;
+    background-image:
+      linear-gradient(90deg, transparent 46px, var(--margin) 46px, var(--margin) 48px, transparent 48px),
+      repeating-linear-gradient(transparent 0 35px, var(--rule) 35px 36px);
+    background-position: 0 70px; background-repeat: repeat-y;
+    padding: 18px 18px 30px 60px; min-height: calc(100vh - 120px);
+  }
+  .sheet::before {
+    content: ""; position: absolute; top: 0; left: 0; right: 0; height: 22px;
+    background: radial-gradient(circle at 12px 11px, var(--desk) 5px, transparent 6px) 0 0 / 36px 22px repeat-x;
+  }
+  .sheet h2 { font: 700 2.1rem/1 var(--hand); color: var(--tomato-dark); margin: 18px 0 2px; }
+  .sheet .sub { font: italic .9rem var(--serif); color: var(--muted); margin-bottom: 14px; }
+  .weeknav { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .weeknav button { background: none; border: 1px solid var(--faint); border-radius: 999px; padding: 6px 12px; color: var(--muted); }
+  .weeknav strong { font: italic 600 1.05rem var(--display); }
+  .day { display: grid; grid-template-columns: 64px 1fr auto; gap: 10px; align-items: center; min-height: 72px; padding: 8px 0; border-bottom: 1px solid transparent; }
+  .day .date { font: 700 1.5rem/1 var(--hand); color: var(--ink); }
+  .day .date small { display: block; font: .75rem var(--serif); color: var(--muted); margin-top: 2px; }
+  .day.today .date { color: var(--tomato); }
+  .day.today .date::after { content: "today"; display: block; font: 600 .65rem var(--serif); letter-spacing: .1em; text-transform: uppercase; color: var(--tomato); }
+  .entry { border-radius: 10px; padding: 8px 12px; background: #fff; border: 1px solid var(--edge); box-shadow: 0 1px 0 var(--edge); }
+  .entry.cook { border-left: 5px solid var(--tomato); }
+  .entry.left { border-left: 5px solid var(--butter); background: #fffbef; }
+  .entry .what { font-weight: 600; }
+  .entry .with { font-style: italic; color: var(--muted); font-size: .9rem; }
+  .entry .tag { font: 18px var(--hand); color: var(--sage); }
+  .free { font: 20px var(--hand); color: var(--faint); }
+  .x { border: none; background: none; color: var(--muted); font-size: 1.1rem; padding: 6px; }
+  .gl { list-style: none; margin: 0; padding: 0; }
+  .gl li { display: grid; grid-template-columns: 30px 1fr auto; gap: 8px; align-items: center; min-height: 54px; padding: 6px 0; }
+  .gl li { cursor: pointer; }
+  .gl input { width: 26px; height: 26px; accent-color: var(--sage); }
+  .gl .item { font: 700 1.5rem/1 var(--hand); }
+  .gl .detail { font-size: .8rem; color: var(--muted); font-style: italic; }
+  .gl .price { font: 700 1.3rem var(--hand); color: var(--tomato); }
+  .gl li.got .item, .gl li.got .price { text-decoration: line-through; text-decoration-thickness: 2px; color: var(--faint); }
+  .totals { margin-top: 18px; border-top: 2px solid var(--ink); padding-top: 10px; }
+  .totals div { display: flex; justify-content: space-between; padding: 3px 0; }
+  .totals .big { font: 700 1.8rem var(--hand); color: var(--tomato-dark); }
+  .totals .small { font-size: .85rem; color: var(--muted); }
+  .ghost { background: none; border: 1px solid var(--faint); border-radius: 999px; padding: 6px 14px; color: var(--muted); margin-top: 14px; }
+  .empty-note { font: 24px/1.3 var(--hand); color: var(--muted); padding: 24px 0; }
+
+  /* ---------- ribbon tabs ---------- */
   nav.tabs {
-    position: fixed; bottom: 0; left: 0; right: 0; display: flex; background: var(--card);
-    border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom);
+    position: fixed; left: 0; right: 0; bottom: 0; display: flex; justify-content: center; gap: 10px;
+    padding: 0 12px env(safe-area-inset-bottom); pointer-events: none;
   }
-  nav.tabs button { flex: 1; border: none; border-radius: 0; background: none; padding: 12px 4px; min-height: 60px; font-size: .85rem; color: var(--muted); }
-  nav.tabs button[aria-selected=true] { color: var(--accent); font-weight: 700; }
-  nav.tabs span { display: block; font-size: 1.3rem; }
-  dialog { border: none; border-radius: 16px; padding: 18px; background: var(--card); color: var(--ink); width: min(420px, calc(100vw - 32px)); }
-  dialog::backdrop { background: rgba(0,0,0,.4); }
-  dialog label { display: block; margin: 10px 0 4px; font-size: .9rem; color: var(--muted); }
-  dialog select { width: 100%; }
-  .muted { color: var(--muted); font-size: .85rem; }
-  .chip { display: inline-block; background: var(--accent-soft); border-radius: 999px; padding: 2px 10px; font-size: .8rem; margin: 2px 4px 0 0; }
-  .sides label { display: flex; align-items: center; gap: 8px; margin: 6px 0; color: var(--ink); font-size: 1rem; }
-  .sides input { width: 20px; height: 20px; min-height: 0; }
-  @media (max-width: 480px) { .day { grid-template-columns: 74px 1fr auto; } }
+  nav.tabs button {
+    pointer-events: auto; position: relative; width: 96px; height: 70px; border: none; padding: 8px 0 0;
+    color: #fff; font: 600 .82rem var(--serif); letter-spacing: .03em;
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 84%, 0 100%);
+    filter: drop-shadow(0 -2px 3px rgba(0,0,0,.2)); transform: translateY(8px); transition: transform .2s;
+  }
+  nav.tabs button span { display: block; font-size: 1.35rem; line-height: 1.2; }
+  nav.tabs button[data-tab=book] { background: var(--tomato); }
+  nav.tabs button[data-tab=week] { background: var(--sage); }
+  nav.tabs button[data-tab=list] { background: #c08a2e; }
+  nav.tabs button[aria-selected=true] { transform: translateY(0); }
+
+  /* ---------- plan card ---------- */
+  dialog {
+    border: none; padding: 0; width: min(420px, calc(100vw - 28px)); border-radius: 8px; color: var(--ink);
+    background: #fffdf7; box-shadow: 0 20px 50px rgba(0,0,0,.35);
+  }
+  dialog::backdrop { background: rgba(40,25,15,.5); backdrop-filter: blur(2px); }
+  .card-top { background: var(--tomato); height: 10px; border-radius: 8px 8px 0 0; }
+  dialog form {
+    padding: 18px 20px 20px;
+    background-image: repeating-linear-gradient(transparent 0 31px, var(--rule) 31px 32px); background-position: 0 56px;
+  }
+  dialog h3 { margin: 0; font: 800 1.5rem var(--display); color: var(--tomato-dark); }
+  dialog .hint { font: 20px var(--hand); color: var(--muted); margin: 2px 0 10px; }
+  dialog label.lbl { display: block; font: italic 600 1rem var(--display); color: var(--sage); margin: 12px 0 6px; }
+  dialog select { width: 100%; padding: 10px; border-radius: 10px; border: 1px solid var(--edge); background: #fff; }
+  .sides label { display: flex; align-items: center; gap: 10px; padding: 7px 0; }
+  .sides input { width: 20px; height: 20px; accent-color: var(--tomato); }
+  .sides .goes { font: 18px var(--hand); color: var(--sage); }
+  .sides .c { margin-left: auto; color: var(--muted); font-size: .9rem; }
+  .actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
+  .actions button { border-radius: 999px; padding: 10px 18px; border: 1px solid var(--faint); background: #fff; }
+  .actions .go { background: var(--tomato); border-color: var(--tomato); color: #fff; font-weight: 700; }
+
+  @media (min-width: 700px) {
+    body { padding-top: 24px; }
+    .page { padding: 44px 48px 64px 60px; }
+  }
 </style>
 </head>
 <body>
-<header>
-  <h1>Family Cookbook</h1>
-  <p id="source"></p>
-</header>
 
-<main>
-  <section id="tab-meals">
-    <h2>Meals</h2>
-    <div id="meals" class="grid"></div>
-    <h2>Sides</h2>
-    <div id="sides" class="grid"></div>
-  </section>
+<section id="tab-book">
+  <div class="book-wrap">
+    <div class="book" id="book">
+      <div class="page under" id="pageUnder"></div>
+      <div class="page top" id="pageTop"></div>
+      <button class="corner" id="corner" aria-label="Turn page"></button>
+    </div>
+    <div class="book-nav">
+      <button id="prevPage" aria-label="Previous page">‹ Back</button>
+      <span class="hint" id="hint">swipe to turn the page</span>
+      <button id="nextPage" aria-label="Next page">Next ›</button>
+    </div>
+  </div>
+</section>
 
-  <section id="tab-week" hidden>
+<section id="tab-week" hidden>
+  <div class="sheet">
+    <h2>This week's dinners</h2>
+    <div class="sub">Each meal fills as many days as it usually lasts.</div>
     <div class="weeknav">
       <button id="prevWeek" aria-label="Previous week">‹ Prev</button>
-      <h2 id="weekLabel" style="margin:0"></h2>
+      <strong id="weekLabel"></strong>
       <button id="nextWeek" aria-label="Next week">Next ›</button>
     </div>
-    <div id="week" class="week"></div>
-    <p class="muted">A meal fills as many days as it usually lasts you. Tap "Plan" on a meal to add it.</p>
-  </section>
+    <div id="week"></div>
+  </div>
+</section>
 
-  <section id="tab-list" hidden>
-    <h2 id="listLabel">Grocery list</h2>
+<section id="tab-list" hidden>
+  <div class="sheet">
+    <h2>Grocery list</h2>
+    <div class="sub" id="listSub"></div>
     <div id="list"></div>
-    <p class="muted">Prices are estimates and change with sales. Tick items off as you shop.</p>
-  </section>
-</main>
+  </div>
+</section>
 
 <nav class="tabs" role="tablist">
-  <button role="tab" data-tab="meals" aria-selected="true"><span>🍲</span>Meals</button>
+  <button role="tab" data-tab="book" aria-selected="true"><span>📖</span>Cookbook</button>
   <button role="tab" data-tab="week" aria-selected="false"><span>📅</span>Week</button>
   <button role="tab" data-tab="list" aria-selected="false"><span>🛒</span>Groceries</button>
 </nav>
 
 <dialog id="planDialog">
+  <div class="card-top"></div>
   <form method="dialog">
-    <h3 id="planTitle" style="margin:0"></h3>
-    <p class="muted" id="planHint"></p>
-    <label for="planDay">Start on</label>
+    <h3 id="planTitle"></h3>
+    <div class="hint" id="planHint"></div>
+    <label class="lbl" for="planDay">Start on</label>
     <select id="planDay"></select>
     <div id="sidesBox"></div>
-    <div class="row" style="justify-content:flex-end">
+    <div class="actions">
       <button value="cancel">Cancel</button>
-      <button value="ok" class="primary">Add to plan</button>
+      <button value="ok" class="go">Add to the week</button>
     </div>
   </form>
 </dialog>
@@ -169,6 +358,7 @@ const SAMPLE = {
 };
 
 let data = SAMPLE;
+let sourceNote = "";
 const store = {
   get(k, d) { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } },
   set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
@@ -212,13 +402,13 @@ async function loadSheet() {
 }
 
 async function init() {
-  const src = document.getElementById("source");
   if (SHEET_ID) {
-    try { data = await loadSheet(); src.textContent = "Live from the family Google Sheet"; }
-    catch (e) { src.textContent = "Showing sample data. " + e.message; }
+    try { data = await loadSheet(); sourceNote = "Live from the family Google Sheet"; }
+    catch (e) { sourceNote = "Showing sample data. " + e.message; }
   } else {
-    src.textContent = "Showing sample data";
+    sourceNote = "Showing sample data";
   }
+  buildPages();
   renderAll();
 }
 
@@ -246,34 +436,96 @@ function mealCost(m) {
   return ingredientsOf(m.meal).reduce((t, i) => t + (lineCost(i) ?? 0), 0);
 }
 function esc(s) { return String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+const mealEmoji = m => {
+  const n = m.meal.toLowerCase();
+  const table = [["roast", "🍖"], ["soup", "🍲"], ["stew", "🍲"], ["chili", "🌶️"], ["pasta", "🍝"], ["spaghetti", "🍝"], ["lasagna", "🍝"],
+    ["chicken", "🍗"], ["fish", "🐟"], ["salmon", "🐟"], ["taco", "🌮"], ["pizza", "🍕"], ["curry", "🍛"], ["rice", "🍚"], ["burger", "🍔"],
+    ["salad", "🥗"], ["spinach", "🥬"], ["potato", "🥔"], ["carrot", "🥕"], ["pudding", "🥯"], ["yorkshire", "🥯"], ["bread", "🍞"], ["corn", "🌽"]];
+  return (table.find(([k]) => n.includes(k)) || [, isSide(m) ? "🥄" : "🍽️"])[1];
+};
 
-// ---------- meals ----------
-function mealCard(m) {
-  const days = lastsDays(m), cost = mealCost(m);
-  const pairs = goesWith(m);
-  return `<article class="card">
-    <h3>${esc(m.meal)}</h3>
-    <div class="meta">
-      <span>Serves ${esc(m.serves || "?")}</span>
-      ${isSide(m) ? "" : `<span>Lasts ${days} day${days > 1 ? "s" : ""}</span>`}
-      <span>≈ ${money(cost)}</span>
-      ${isSide(m) || days < 2 ? "" : `<span>≈ ${money(cost / days)}/day</span>`}
-    </div>
-    ${m.notes ? `<p style="margin:8px 0 0;font-size:.9rem">${esc(m.notes)}</p>` : ""}
-    ${pairs.length ? `<div style="margin-top:6px"><span class="muted">Goes well with </span>${pairs.map(p => `<span class="chip">${esc(p)}</span>`).join("")}</div>` : ""}
-    <details><summary>Ingredients</summary><ul>
-      ${ingredientsOf(m.meal).map(i => {
-        const c = lineCost(i);
-        return `<li>${esc(i.ingredient)}${i.amount_used ? `, ${esc(i.amount_used)}` : ""} <span class="muted">${c === null ? "(no price yet)" : "≈ " + money(c)}</span></li>`;
-      }).join("")}
-    </ul></details>
-    ${isSide(m) ? "" : `<div class="row"><button class="primary" data-plan="${esc(m.meal)}">Plan</button></div>`}
-  </article>`;
+// ---------- the book ----------
+let pages = [];      // [{ kind: "cover" | "contents" | "recipe", meal }]
+let current = 0, turning = false;
+
+function buildPages() {
+  const meals = data.meals.filter(m => !isSide(m)), sides = data.meals.filter(isSide);
+  pages = [{ kind: "cover" }, { kind: "contents" }, ...meals.map(m => ({ kind: "recipe", meal: m })), ...sides.map(m => ({ kind: "recipe", meal: m }))];
+  current = Math.min(store.get("page", 0), pages.length - 1);
 }
-function renderMeals() {
-  const mains = data.meals.filter(m => !isSide(m)), sides = data.meals.filter(isSide);
-  document.getElementById("meals").innerHTML = mains.length ? mains.map(mealCard).join("") : `<p class="muted">No meals yet.</p>`;
-  document.getElementById("sides").innerHTML = sides.length ? sides.map(mealCard).join("") : `<p class="muted">No sides yet.</p>`;
+function pageIndexOf(name) { return pages.findIndex(p => p.meal && same(p.meal.meal, name)); }
+
+function renderPage(i) {
+  const p = pages[i];
+  if (p.kind === "cover") return `
+    <div class="frame">
+      <div class="eyebrow">~ est. in our kitchen ~</div>
+      <h1>Muno's<br>Cookbook</h1>
+      <div class="bowl">🍲</div>
+      <div class="sub">recipes we love, made at home</div>
+      <button class="open" data-go="1">Open the book</button>
+      <div class="src">${esc(sourceNote)}</div>
+    </div>`;
+  const folio = `<div class="folio">~ ${i} ~</div>`;
+  if (p.kind === "contents") {
+    const entry = m => `<a data-go="${pageIndexOf(m.meal)}"><span class="nm">${mealEmoji(m)} ${esc(m.meal)}</span><span class="dots"></span><span class="pg">${pageIndexOf(m.meal)}</span></a>`;
+    const meals = data.meals.filter(m => !isSide(m)), sides = data.meals.filter(isSide);
+    return `<div class="toc">
+      <h2 class="title">Contents</h2>
+      <div class="flourish">what's cooking in our kitchen</div>
+      <h3>Meals</h3>${meals.length ? meals.map(entry).join("") : `<div class="empty">No meals yet, add one to the Sheet!</div>`}
+      <h3>Sides</h3>${sides.length ? sides.map(entry).join("") : `<div class="empty">No sides yet.</div>`}
+    </div>${folio}`;
+  }
+  const m = p.meal, days = lastsDays(m), cost = mealCost(m), side = isSide(m);
+  const ings = ingredientsOf(m.meal);
+  const pairs = goesWith(m);
+  return `<article class="recipe">
+    <div class="kind">${side ? "Side" : "Meal"}${!side && days >= 4 ? `<span class="stamp">feeds the week</span>` : ""}</div>
+    <h2>${mealEmoji(m)} ${esc(m.meal)}</h2>
+    <div class="badges">
+      <div class="badge"><b>${esc(m.serves || "?")}</b><span>serves</span></div>
+      ${side ? "" : `<div class="badge"><b>${days}</b><span>day${days > 1 ? "s" : ""}</span></div>`}
+      <div class="badge"><b>${money(cost)}</b><span>about</span></div>
+      ${!side && days > 1 ? `<div class="badge"><b>${money(cost / days)}</b><span>per day</span></div>` : ""}
+    </div>
+    ${m.notes ? `<div class="note">${esc(m.notes)}</div>` : ""}
+    <h3>Ingredients</h3>
+    ${ings.length ? `<ul class="ing">${ings.map(i => {
+      const c = lineCost(i);
+      return `<li><span class="nm">${esc(i.ingredient)}</span>${i.amount_used ? `<span class="amt">${esc(i.amount_used)}</span>` : ""}<span class="dots"></span>${c === null ? `<span class="missing">no price yet</span>` : `<span class="cost">${money(c)}</span>`}</li>`;
+    }).join("")}</ul>` : `<div class="empty-note">No ingredients listed yet.</div>`}
+    ${pairs.length ? `<h3>Goes well with</h3><div class="pairs">${pairs.map(n => {
+      const at = pageIndexOf(n);
+      return at > 0 ? `<button class="pair" data-go="${at}">${esc(n)}</button>` : `<span class="pair">${esc(n)}</span>`;
+    }).join("")}</div>` : ""}
+    ${side ? "" : `<button class="plan-btn" data-plan="${esc(m.meal)}">Plan this dinner</button>`}
+  </article>${folio}`;
+}
+
+function paint(el, i) {
+  el.className = "page " + (el.id === "pageTop" ? "top" : "under") + (pages[i].kind === "cover" ? " cover" : "");
+  el.innerHTML = renderPage(i);
+  el.scrollTop = 0;
+}
+function updateNav() {
+  document.getElementById("prevPage").disabled = current === 0;
+  document.getElementById("nextPage").disabled = current >= pages.length - 1;
+  document.getElementById("corner").hidden = current === 0 || current >= pages.length - 1;
+  store.set("page", current);
+}
+function renderBook() { paint(document.getElementById("pageTop"), current); updateNav(); }
+
+function goTo(to) {
+  if (turning || to === current || to < 0 || to >= pages.length) return;
+  const top = document.getElementById("pageTop"), under = document.getElementById("pageUnder");
+  const forward = to > current;
+  turning = true;
+  if (forward) { paint(under, to); paint(top, current); top.classList.add("flip-next"); }
+  else { paint(under, current); paint(top, to); top.classList.add("flip-prev"); }
+  top.addEventListener("animationend", () => {
+    current = to; paint(top, to); under.innerHTML = ""; turning = false; updateNav();
+  }, { once: true });
 }
 
 // ---------- planning ----------
@@ -298,12 +550,15 @@ function renderWeek() {
     const d = addDays(weekStart, i), key = iso(d), c = cov[key];
     const label = `<div class="date">${d.toLocaleDateString(undefined, { weekday: "short" })}<small>${d.toLocaleDateString(undefined, opt)}</small></div>`;
     const cls = `day ${key === today ? "today" : ""}`;
-    if (!c) return `<div class="${cls}">${label}<div class="what empty">Nothing planned</div><span></span></div>`;
-    const sides = (c.entry.sides || []).length ? ` with ${c.entry.sides.map(esc).join(" and ")}` : "";
-    const left = c.dayIndex === 0 ? "Cook day" : `Leftovers, day ${c.dayIndex + 1} of ${c.days}`;
+    if (!c) return `<div class="${cls}">${label}<div class="free">free night</div><span></span></div>`;
+    const sides = (c.entry.sides || []).length ? `<div class="with">with ${c.entry.sides.map(esc).join(" & ")}</div>` : "";
+    const cook = c.dayIndex === 0;
     return `<div class="${cls}">${label}
-      <div class="what">${esc(c.meal.meal)}${sides}<div class="left">${left}</div></div>
-      ${c.dayIndex === 0 ? `<button class="link" data-remove="${esc(c.entry.meal)}|${c.entry.start}" aria-label="Remove">✕</button>` : "<span></span>"}
+      <div class="entry ${cook ? "cook" : "left"}">
+        <div class="what">${mealEmoji(c.meal)} ${esc(c.meal.meal)}</div>${cook ? sides : ""}
+        <div class="tag">${cook ? "cook day" : `leftovers, day ${c.dayIndex + 1} of ${c.days}`}</div>
+      </div>
+      ${cook ? `<button class="x" data-remove="${esc(c.entry.meal)}|${c.entry.start}" aria-label="Remove">✕</button>` : "<span></span>"}
     </div>`;
   }).join("");
 }
@@ -313,7 +568,7 @@ function openPlan(name) {
   const m = mealByName(name); planning = m.meal;
   const days = lastsDays(m);
   document.getElementById("planTitle").textContent = m.meal;
-  document.getElementById("planHint").textContent = `Usually lasts ${days} day${days > 1 ? "s" : ""}, so it will fill that many days.`;
+  document.getElementById("planHint").textContent = `usually lasts us ${days} day${days > 1 ? "s" : ""}`;
   const sel = document.getElementById("planDay");
   const thisWeek = mondayOf(new Date());
   const base = thisWeek > weekStart ? thisWeek : weekStart;
@@ -326,8 +581,8 @@ function openPlan(name) {
   if (firstFree) sel.value = firstFree.value;
   const sides = data.meals.filter(isSide);
   const pairs = goesWith(m);
-  document.getElementById("sidesBox").innerHTML = sides.length ? `<label>Sides (pick 1 or 2)</label><div class="sides">${sides.map(s =>
-    `<label><input type="checkbox" name="side" value="${esc(s.meal)}"> ${esc(s.meal)} <span class="muted">≈ ${money(mealCost(s))}</span>${pairs.some(p => same(p, s.meal)) ? ` <span class="chip">goes well</span>` : ""}</label>`
+  document.getElementById("sidesBox").innerHTML = sides.length ? `<label class="lbl">Sides (pick 1 or 2)</label><div class="sides">${sides.map(s =>
+    `<label><input type="checkbox" name="side" value="${esc(s.meal)}"> ${mealEmoji(s)} ${esc(s.meal)}${pairs.some(p => same(p, s.meal)) ? ` <span class="goes">goes well</span>` : ""}<span class="c">${money(mealCost(s))}</span></label>`
   ).join("")}</div>` : "";
   document.getElementById("planDialog").showModal();
 }
@@ -338,7 +593,7 @@ document.getElementById("planDialog").addEventListener("close", e => {
     plan.push({ meal: planning, start, sides });
     store.set("plan2", plan);
     weekStart = mondayOf(fromIso(start));
-    renderAll(); showTab("week");
+    renderWeek(); renderList(); showTab("week");
   }
   planning = null;
 });
@@ -349,8 +604,10 @@ document.getElementById("planDialog").addEventListener("close", e => {
 function renderList() {
   const from = iso(weekStart), to = iso(addDays(weekStart, 6));
   const entries = plan.filter(p => p.start >= from && p.start <= to);
+  const opt = { month: "short", day: "numeric" };
+  document.getElementById("listSub").textContent = `For meals starting ${weekStart.toLocaleDateString(undefined, opt)} – ${addDays(weekStart, 6).toLocaleDateString(undefined, opt)}. Prices are estimates.`;
   const el = document.getElementById("list");
-  if (!entries.length) { el.innerHTML = `<div class="banner">No meals start this week yet. Plan some from the Meals tab.</div>`; return; }
+  if (!entries.length) { el.innerHTML = `<div class="empty-note">Nothing planned this week yet.<br>Flip through the cookbook and tap "Plan this dinner".</div>`; return; }
   const items = {};
   entries.forEach(e => [e.meal, ...(e.sides || [])].forEach(name => ingredientsOf(name).forEach(i => {
     const key = i.ingredient.trim().toLowerCase();
@@ -365,44 +622,65 @@ function renderList() {
     const cost = p ? packs * num(p.price) : null;
     if (cost !== null) { total += cost; used += it.share * num(p.price); if (!got[key]) left += cost; }
     const size = p?.package_size ? `${packs} × ${esc(p.package_size)}` : `${packs} package${packs > 1 ? "s" : ""}`;
-    return `<tr class="${got[key] ? "got" : ""}">
-      <td><input type="checkbox" data-got="${esc(key)}" ${got[key] ? "checked" : ""} aria-label="Got ${esc(it.name)}"></td>
-      <td>${esc(it.name)}<div class="muted">${size}${it.uses.length ? ` · using ${it.uses.map(esc).join(" + ")}` : ""}</div></td>
-      <td class="num">${cost === null ? "?" : money(cost)}</td></tr>`;
+    return `<li class="${got[key] ? "got" : ""}">
+      <input type="checkbox" data-got="${esc(key)}" ${got[key] ? "checked" : ""} aria-label="Got ${esc(it.name)}">
+      <div><div class="item">${esc(it.name)}</div><div class="detail">${size}${it.uses.length ? ` · using ${it.uses.map(esc).join(" + ")}` : ""}</div></div>
+      <div class="price">${cost === null ? "?" : money(cost)}</div></li>`;
   }).join("");
-  el.innerHTML = `<table>
-    <thead><tr><th></th><th>Item</th><th class="num">Est.</th></tr></thead>
-    <tbody>${body}</tbody>
-    <tfoot><tr><td></td><td>Estimated total</td><td class="num">${money(total)}</td></tr>
-    <tr><td></td><td class="muted" style="font-weight:400">Still to buy</td><td class="num muted" style="font-weight:400">${money(left)}</td></tr>
-    <tr><td></td><td class="muted" style="font-weight:400">Value of what the meals actually use</td><td class="num muted" style="font-weight:400">${money(used)}</td></tr></tfoot>
-  </table>
-  <div class="row"><button id="clearGot">Untick all</button></div>`;
+  el.innerHTML = `<ul class="gl">${body}</ul>
+  <div class="totals">
+    <div class="big"><span>Total</span><span>${money(total)}</span></div>
+    <div class="small"><span>Still to buy</span><span>${money(left)}</span></div>
+    <div class="small"><span>Value of what the meals actually use</span><span>${money(used)}</span></div>
+  </div>
+  <button class="ghost" id="clearGot">Untick all</button>`;
 }
 
 // ---------- wiring ----------
-function renderAll() { renderMeals(); renderWeek(); renderList(); }
+function renderAll() { renderBook(); renderWeek(); renderList(); }
 function showTab(name) {
   document.querySelectorAll("nav.tabs button").forEach(b => b.setAttribute("aria-selected", b.dataset.tab === name));
-  ["meals", "week", "list"].forEach(t => document.getElementById("tab-" + t).hidden = t !== name);
+  ["book", "week", "list"].forEach(t => document.getElementById("tab-" + t).hidden = t !== name);
   window.scrollTo(0, 0);
 }
 document.querySelector("nav.tabs").addEventListener("click", e => { const b = e.target.closest("button"); if (b) showTab(b.dataset.tab); });
+document.getElementById("prevPage").onclick = () => goTo(current - 1);
+document.getElementById("nextPage").onclick = () => goTo(current + 1);
+document.getElementById("corner").onclick = () => goTo(current + 1);
 document.getElementById("prevWeek").onclick = () => { weekStart = addDays(weekStart, -7); renderWeek(); renderList(); };
 document.getElementById("nextWeek").onclick = () => { weekStart = addDays(weekStart, 7); renderWeek(); renderList(); };
 document.body.addEventListener("click", e => {
+  const g = e.target.closest("[data-go]"); if (g) return goTo(Number(g.dataset.go));
   const p = e.target.closest("[data-plan]"); if (p) return openPlan(p.dataset.plan);
   const r = e.target.closest("[data-remove]");
   if (r) {
     const [name, start] = r.dataset.remove.split("|");
     plan = plan.filter(x => !(same(x.meal, name) && x.start === start));
-    store.set("plan2", plan); renderAll();
+    store.set("plan2", plan); renderWeek(); renderList();
   }
   if (e.target.id === "clearGot") { got = {}; store.set("got", got); renderList(); }
+  // Tapping anywhere on a grocery row ticks it, which is easier in the store.
+  const row = e.target.closest(".gl li");
+  if (row && e.target.tagName !== "INPUT") { const box = row.querySelector("input"); box.checked = !box.checked; box.dispatchEvent(new Event("change", { bubbles: true })); }
 });
 document.body.addEventListener("change", e => {
   const g = e.target.closest("[data-got]");
   if (g) { got[g.dataset.got] = g.checked; store.set("got", got); renderList(); }
+});
+document.addEventListener("keydown", e => {
+  if (document.getElementById("tab-book").hidden || document.querySelector("dialog[open]")) return;
+  if (e.key === "ArrowRight") goTo(current + 1);
+  if (e.key === "ArrowLeft") goTo(current - 1);
+});
+// Swipe left/right on the book to turn pages.
+let touchX = null, touchY = null;
+const bookEl = document.getElementById("book");
+bookEl.addEventListener("touchstart", e => { touchX = e.touches[0].clientX; touchY = e.touches[0].clientY; }, { passive: true });
+bookEl.addEventListener("touchend", e => {
+  if (touchX === null) return;
+  const dx = e.changedTouches[0].clientX - touchX, dy = e.changedTouches[0].clientY - touchY;
+  if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) goTo(current + (dx < 0 ? 1 : -1));
+  touchX = null;
 });
 init();
 </script>
