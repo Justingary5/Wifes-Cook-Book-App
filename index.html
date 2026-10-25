@@ -89,7 +89,7 @@
 
 <main>
   <section id="tab-meals">
-    <h2>Mains</h2>
+    <h2>Meals</h2>
     <div id="meals" class="grid"></div>
     <h2>Sides</h2>
     <div id="sides" class="grid"></div>
@@ -272,7 +272,7 @@ function mealCard(m) {
 }
 function renderMeals() {
   const mains = data.meals.filter(m => !isSide(m)), sides = data.meals.filter(isSide);
-  document.getElementById("meals").innerHTML = mains.length ? mains.map(mealCard).join("") : `<p class="muted">No mains yet.</p>`;
+  document.getElementById("meals").innerHTML = mains.length ? mains.map(mealCard).join("") : `<p class="muted">No meals yet.</p>`;
   document.getElementById("sides").innerHTML = sides.length ? sides.map(mealCard).join("") : `<p class="muted">No sides yet.</p>`;
 }
 
