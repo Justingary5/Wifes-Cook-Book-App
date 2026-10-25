@@ -58,7 +58,9 @@
   .add-tab b { font-size: 1.15rem; line-height: 0; margin-right: 4px; }
   .book {
     position: relative; perspective: 2200px;
-    height: calc(100vh - 180px - env(safe-area-inset-bottom)); min-height: 460px; max-height: 900px;
+    /* dvh follows the phone's visible area, so the browser's address bar doesn't push the buttons under the tabs. */
+    height: calc(100vh - 205px - env(safe-area-inset-bottom));
+    height: calc(100dvh - 205px - env(safe-area-inset-bottom)); min-height: 380px; max-height: 900px;
   }
   .page {
     position: absolute; inset: 0; overflow-y: auto; -webkit-overflow-scrolling: touch;
