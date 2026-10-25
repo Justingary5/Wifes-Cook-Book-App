@@ -395,13 +395,24 @@ function parseCSV(text) {
   }
   if (field || row.length) { row.push(field); rows.push(row); }
   const [head = [], ...body] = rows;
-  const keys = head.map(h => h.trim().toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, ""));
+  const raw = head.map(h => h.trim().toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, ""));
+  const keys = raw.map(k => canonical(k, raw));
   return body.filter(r => r.some(v => v.trim())).map(r =>
     Object.fromEntries(keys.map((k, i) => [k, (r[i] ?? "").trim()])));
 }
 
+// Column names the page uses. A Sheet header that starts with one of these
+// (like "Ingredient (must match Prices)") is read as that column, unless the
+// tab already has a column with exactly that name (so "Price source" stays separate).
+const COLUMNS = ["meal", "type", "serves", "lasts_days", "goes_well_with", "notes", "est_cost",
+  "ingredient", "amount_used", "share_of_package_used", "item", "package_size", "price", "store"];
+function canonical(key, all) {
+  if (COLUMNS.includes(key)) return key;
+  return COLUMNS.filter(c => key.startsWith(c + "_") && !all.includes(c)).sort((a, b) => b.length - a.length)[0] || key;
+}
+
 async function loadSheet() {
-  const url = t => `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(t)}`;
+  const url = t => `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&headers=1&sheet=${encodeURIComponent(t)}`;
   const [meals, ingredients, prices] = await Promise.all(
     [TABS.meals, TABS.ingredients, TABS.prices].map(t => fetch(url(t)).then(r => {
       if (!r.ok) throw new Error(`Could not read the "${t}" tab. Is the Sheet shared as "anyone with the link"?`);
@@ -434,7 +445,7 @@ function mealByName(n) { return data.meals.find(m => same(m.meal, n)); }
 function isSide(m) { return same(m.type, "side"); }
 function lastsDays(m) { return Math.max(1, Math.round(num(m.lasts_days)) || 1); }
 function goesWith(m) { return String(m.goes_well_with || "").split(",").map(s => s.trim()).filter(Boolean); }
-function ingredientsOf(name) { return data.ingredients.filter(i => same(i.meal, name)); }
+function ingredientsOf(name) { return data.ingredients.filter(i => i.ingredient && same(i.meal, name)); }
 function priceOf(item) { return data.prices.find(p => same(p.item, item)); }
 function lineCost(ing) {
   if (ing.est_cost) return num(ing.est_cost);
@@ -620,6 +631,7 @@ function renderList() {
   if (!entries.length) { el.innerHTML = `<div class="empty-note">Nothing planned this week yet.<br>Flip through the cookbook and tap "Plan this dinner".</div>`; return; }
   const items = {};
   entries.forEach(e => [e.meal, ...(e.sides || [])].forEach(name => ingredientsOf(name).forEach(i => {
+    if (!priceOf(i.ingredient) && !num(i.share_of_package_used)) return;   // e.g. tap water
     const key = i.ingredient.trim().toLowerCase();
     items[key] ??= { name: i.ingredient, share: 0, uses: [] };
     items[key].share += num(i.share_of_package_used);
