@@ -209,6 +209,16 @@
   .gl .detail { font-size: .8rem; color: var(--muted); font-style: italic; }
   .gl .price { font: 700 1.3rem var(--hand); color: var(--tomato); }
   .gl li.got .item, .gl li.got .price { text-decoration: line-through; text-decoration-thickness: 2px; color: var(--faint); }
+  .bill {
+    position: sticky; top: 8px; z-index: 2; display: flex; justify-content: space-between; align-items: center; gap: 10px;
+    background: var(--tomato-dark); color: #fff4dc; border-radius: 12px; padding: 10px 16px; margin: 4px 0 12px; box-shadow: 0 6px 14px rgba(60,20,10,.25);
+  }
+  .bill .lbl { font: italic .85rem var(--display); color: var(--butter); }
+  .bill .amt { font: 700 2.1rem/1 var(--hand); }
+  .bill .prog { text-align: right; font-size: .82rem; }
+  .bill .prog b { font: 700 1.3rem var(--hand); display: block; }
+  .bar { height: 6px; border-radius: 3px; background: rgba(255,255,255,.2); margin-top: 4px; overflow: hidden; }
+  .bar i { display: block; height: 100%; background: var(--butter); }
   .totals { margin-top: 18px; border-top: 2px solid var(--ink); padding-top: 10px; }
   .totals div { display: flex; justify-content: space-between; padding: 3px 0; }
   .totals .big { font: 700 1.8rem var(--hand); color: var(--tomato-dark); }
@@ -615,19 +625,24 @@ function renderList() {
     items[key].share += num(i.share_of_package_used);
     if (i.amount_used) items[key].uses.push(i.amount_used);
   })));
-  let total = 0, left = 0, used = 0;
+  let total = 0, left = 0, used = 0, count = 0, done = 0;
   const body = Object.entries(items).sort((a, b) => a[1].name.localeCompare(b[1].name)).map(([key, it]) => {
     const p = priceOf(it.name);
     const packs = Math.max(1, Math.ceil(it.share - 1e-9));
     const cost = p ? packs * num(p.price) : null;
     if (cost !== null) { total += cost; used += it.share * num(p.price); if (!got[key]) left += cost; }
+    count++; if (got[key]) done++;
     const size = p?.package_size ? `${packs} × ${esc(p.package_size)}` : `${packs} package${packs > 1 ? "s" : ""}`;
     return `<li class="${got[key] ? "got" : ""}">
       <input type="checkbox" data-got="${esc(key)}" ${got[key] ? "checked" : ""} aria-label="Got ${esc(it.name)}">
       <div><div class="item">${esc(it.name)}</div><div class="detail">${size}${it.uses.length ? ` · using ${it.uses.map(esc).join(" + ")}` : ""}</div></div>
       <div class="price">${cost === null ? "?" : money(cost)}</div></li>`;
   }).join("");
-  el.innerHTML = `<ul class="gl">${body}</ul>
+  el.innerHTML = `<div class="bill">
+    <div><div class="lbl">Estimated grocery bill</div><div class="amt">${money(total)}</div></div>
+    <div class="prog"><b>${done} of ${count}</b>in the cart<div class="bar"><i style="width:${count ? done / count * 100 : 0}%"></i></div></div>
+  </div>
+  <ul class="gl">${body}</ul>
   <div class="totals">
     <div class="big"><span>Total</span><span>${money(total)}</span></div>
     <div class="small"><span>Still to buy</span><span>${money(left)}</span></div>
