@@ -504,13 +504,16 @@ function lastsDays(m) { return Math.max(1, Math.round(num(m.lasts_days)) || 1); 
 function goesWith(m) { return String(m.goes_well_with || "").split(",").map(s => s.trim()).filter(Boolean); }
 function ingredientsOf(name) { return data.ingredients.filter(i => i.ingredient && same(i.meal, name)); }
 function priceOf(item) { return data.prices.find(p => same(p.item, item)); }
+// Meal costs count every item at its full package price (the whole bag of russets,
+// not the share used), since that's what it costs at the till. Items whose package
+// size says "bulk" are priced per kg, and their share is the kg bought, so no rounding.
+const isBulk = p => /bulk/i.test(p?.package_size || "");
 function lineCost(ing) {
-  if (ing.est_cost) return num(ing.est_cost);
-  const p = priceOf(ing.ingredient);
-  return p ? num(ing.share_of_package_used) * num(p.price) : null;
+  const p = priceOf(ing.ingredient), share = num(ing.share_of_package_used);
+  if (!p) return null;
+  return (isBulk(p) ? share : share > 0 ? Math.ceil(share - 1e-9) : 0) * num(p.price);
 }
 function mealCost(m) {
-  if (m.est_cost) return num(m.est_cost);
   return ingredientsOf(m.meal).reduce((t, i) => t + (lineCost(i) ?? 0), 0);
 }
 function esc(s) { return String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
@@ -705,11 +708,13 @@ function renderList() {
   let total = 0, left = 0, used = 0, count = 0, done = 0;
   const body = Object.entries(items).sort((a, b) => a[1].name.localeCompare(b[1].name)).map(([key, it]) => {
     const p = priceOf(it.name);
-    const packs = Math.max(1, Math.ceil(it.share - 1e-9));
+    const bulk = isBulk(p);
+    const packs = bulk ? it.share : Math.max(1, Math.ceil(it.share - 1e-9));
     const cost = p ? packs * num(p.price) : null;
     if (cost !== null) { total += cost; used += it.share * num(p.price); if (!got[key]) left += cost; }
     count++; if (got[key]) done++;
-    const size = p?.package_size ? `${packs} × ${esc(p.package_size)}` : `${packs} package${packs > 1 ? "s" : ""}`;
+    const size = bulk ? `about ${+packs.toFixed(2)} kg, ${esc(p.package_size)}`
+      : p?.package_size ? `${packs} × ${esc(p.package_size)}` : `${packs} package${packs > 1 ? "s" : ""}`;
     return `<li class="${got[key] ? "got" : ""}">
       <input type="checkbox" data-got="${esc(key)}" ${got[key] ? "checked" : ""} aria-label="Got ${esc(it.name)}">
       <div><div class="item">${esc(it.name)}</div><div class="detail">${size}${it.uses.length ? ` · using ${it.uses.map(esc).join(" + ")}` : ""}</div></div>
